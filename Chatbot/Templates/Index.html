@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #121212; /* Dark background */
+        color: #fff; /* White text */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      #chat-container {
+        width: 90%;
+        max-width: 650px;
+        background-color: #1c1c1c; /* Slightly lighter background for the chat */
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #chat-container h1 {
+        font-size: 2.2rem;
+        color: #1ec1cb;
+        text-align: center;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+      }
+
+      #chat-container h2 {
+        font-size: 1.2rem;
+        text-align: center;
+        color: #aaa;
+        margin-bottom: 25px;
+        font-style: italic;
+      }
+
+      #chat-log {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background-color: #2a2a2a;
+        border-radius: 8px;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Increased space between messages */
+        max-height: 400px;
+      }
+
+      #chat-log p {
+        margin: 8px 0;
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+
+      .user-message {
+        text-align: right;
+        background-color: #4e8fd6;
+        padding: 8px 12px;
+        border-radius: 12px;
+        color: #fff;
+        max-width: 70%;
+        width:fit-content;
+        margin-left: auto;
+        font-weight: 500;
+      }
+
+      .bot-message {
+        text-align: left;
+        background-color: #5a5a5a;
+        padding: 8px 12px;
+        border-radius: 12px;
+        color: #fff;
+        width:fit-content;
+        max-width: 70%;
+        margin-right: auto;
+        font-weight: 400;
+      }
+
+      .typing-animation {
+        font-size: 1.2rem;
+        color: #fff;
+        text-align: left;
+        margin-left: 10px;
+      }
+
+      .dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background-color: #1ec1cb;
+        border-radius: 50%;
+        margin: 0 2px;
+        animation: blink 1.5s infinite step-start;
+      }
+
+      .dot:nth-child(1) {
+        animation-delay: 0s;
+      }
+
+      .dot:nth-child(2) {
+        animation-delay: 0.3s;
+      }
+
+      .dot:nth-child(3) {
+        animation-delay: 0.6s;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      #chat-input {
+        display: flex;
+        padding: 12px;
+        gap: 10px;
+        border-top: 1px solid #444;
+      }
+
+      #chat-input input {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background-color: #333;
+        color: #fff;
+        font-size: 1rem;
+      }
+
+      #chat-input button {
+        padding: 10px 18px;
+        border: none;
+        background-color: #1ec1cb;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s;
+      }
+
+      #chat-input button:hover {
+        background-color: #028aa4;
+      }
+
+      /* Clear Chat Button Styling */
+      #clear-chat-btn {
+        background-color: #ff4c4c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+      }
+
+      #clear-chat-btn:hover {
+        background-color: #cc3a3a;
+      }
+
+      /* Custom Scrollbar for Chat Log */
+      #chat-log::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      #chat-log::-webkit-scrollbar-thumb {
+        background-color: #1ec1cb;
+        border-radius: 10px;
+      }
+
+      #chat-log::-webkit-scrollbar-track {
+        background-color: #2a2a2a;
+      }
+
+      /* For smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+    </style>
+  </head>
+  <body>
+    <div><h3>A Sustainble Smart city based AI chatbot</h3>
+    </div>
+    <div id="chat-container">
+      <h1>Eco Guide</h1>
+      <h2>Go Green, Or Learn Swimming</h2>
+      <div id="chat-log"></div>
+      <div id="chat-input">
+        <input type="text" id="user-input" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+      <button id="clear-chat-btn" onclick="clearChat()">Clear Chat</button>
+    </div>
+
+    <script>
+      document
+        .getElementById("user-input")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+          }
+        });
+
+      function sendMessage() {
+        const userInput = document.getElementById("user-input").value;
+
+        if (userInput.trim() !== "") {
+          const chatLog = document.getElementById("chat-log");
+
+          // Append user message
+          const userMessage = document.createElement("p");
+          userMessage.textContent = "You: " + userInput;
+          userMessage.classList.add("user-message");
+          chatLog.appendChild(userMessage);
+
+          // Typing animation
+          const typingMessage = document.createElement("p");
+          typingMessage.classList.add("typing-animation");
+          typingMessage.innerHTML = "Bot is typing " + '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+          chatLog.appendChild(typingMessage);
+
+          fetch("/chat-response/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify({ query: userInput }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              chatLog.removeChild(typingMessage);
+
+              // Append bot message
+              const botMessage = document.createElement("p");
+              botMessage.innerHTML = "Bot: " + data.response;
+              botMessage.classList.add("bot-message");
+              chatLog.appendChild(botMessage);
+
+              // Clear input field
+              document.getElementById("user-input").value = "";
+
+              // Scroll to bottom
+              chatLog.scrollTop = chatLog.scrollHeight;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              chatLog.removeChild(typingMessage);
+            });
+        }
+      }
+
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      function clearChat() {
+        // Clear the chat log when the button is clicked
+        document.getElementById("chat-log").innerHTML = "";
+      }
+    </script>
+  </body>
+</html>
